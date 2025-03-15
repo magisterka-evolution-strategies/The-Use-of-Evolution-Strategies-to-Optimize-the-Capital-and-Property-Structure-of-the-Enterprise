@@ -3,7 +3,7 @@ import random
 import pandas as pd
 
 from Company import Company
-from generate_company_structure import generate_structure_mean
+from Code.utils.generate_company_structure import generate_structure_mean
 
 
 class EvolutionaryAlgorithm:

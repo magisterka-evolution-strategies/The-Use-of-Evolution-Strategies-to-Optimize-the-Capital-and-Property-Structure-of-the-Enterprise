@@ -1,4 +1,4 @@
-from calculations import percentage, only_positive_values
+from Code.utils.calculations import percentage, only_positive_values
 
 
 def get_percentage_structure(data):
@@ -20,8 +20,8 @@ def get_percentage_structure(data):
         for liability in liabilities:
             row.append(percentage(liability, total_liabilities))
 
-        # if only_positive_values(assets) and only_positive_values(liabilities): // if we accept only positive values
-        percentage_structure_data.append(row)
+        if only_positive_values(assets) and only_positive_values(liabilities): # if we accept only positive values
+            percentage_structure_data.append(row)
 
     return percentage_structure_data
 

@@ -1,5 +1,5 @@
+import keras
 import pandas as pd
-from tensorflow import keras
 from sklearn.model_selection import train_test_split
 
 
@@ -31,26 +31,39 @@ class StructureChange:
         n_nodes = [128, 64, 32, 16]
 
         inputs = keras.Input(shape=(self.X.shape[1],))
-
-        x = keras.layers.Dense(n_nodes[0], activation="relu")(inputs)
-
+        model = keras.models.Sequential()
+        model.add(inputs)
+        model.add(keras.layers.Dense(n_nodes[0], activation="relu"))
         for i in range(1, len(n_nodes)):
-            x = keras.layers.Dense(n_nodes[i], activation="relu")(x)
-            x = keras.layers.Dropout(0.1)(x)
+            model.add(keras.layers.Dense(n_nodes[i], activation="relu"))
+            model.add(keras.layers.Dropout(0.1))
+        outputs = keras.layers.Dense(1)
+        model.add(outputs)
 
-        outputs = keras.layers.Dense(1)(x)
+        optimizer = keras.optimizers.Adam(learning_rate=0.00001)
+        model.compile(optimizer=optimizer, loss="mean_squared_error", metrics=["mean_absolute_error"])
 
-        model = keras.Model(inputs=inputs, outputs=outputs)
-
-        learning_rate = 0.000001
-
-        optimizer = keras.optimizers.Adam(learning_rate=learning_rate)
-
-        model.compile(
-            optimizer=optimizer,
-            loss="mean_squared_error",
-            metrics=["mean_absolute_error"],
-        )
+        # inputs = keras.Input(shape=(self.X.shape[1],))
+        #
+        # x = keras.layers.Dense(n_nodes[0], activation="relu")(inputs)
+        #
+        # for i in range(1, len(n_nodes)):
+        #     x = keras.layers.Dense(n_nodes[i], activation="relu")(x)
+        #     x = keras.layers.Dropout(0.1)(x)
+        #
+        # outputs = keras.layers.Dense(1)(x)
+        #
+        # model = keras.Model(inputs=inputs, outputs=outputs)
+        #
+        # learning_rate = 0.00001
+        #
+        # optimizer = keras.optimizers.Adam(learning_rate=learning_rate)
+        #
+        # model.compile(
+        #     optimizer=optimizer,
+        #     loss="mean_squared_error",
+        #     metrics=["mean_absolute_error"],
+        # )
 
         model.fit(
             X_train,

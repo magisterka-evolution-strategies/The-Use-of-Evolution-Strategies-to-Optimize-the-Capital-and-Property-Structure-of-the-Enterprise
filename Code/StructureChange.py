@@ -1,11 +1,12 @@
 import keras
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 
 class StructureChange:
-    def __init__(self, final_data):
-        df = pd.DataFrame(final_data,
+    def __init__(self, filtered_changes_data):
+        df = pd.DataFrame(filtered_changes_data,
                           columns=["CompanyID", "Period", "MarketValue", "NonCurrentAssets", "CurrentAssets",
                                    "AssetsHeldForSaleAndDiscountinuingOperations", "CalledUpCapital", "OwnShares",
                                    "EquityShareholdersOfTheParent", "NonControllingInterests",
@@ -14,16 +15,15 @@ class StructureChange:
                                    "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
 
         df = df.drop(["CompanyID", "Period"], axis=1)
-        Q1 = df.quantile(0.1)
-        Q3 = df.quantile(0.9)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
         self.X = df.drop(["MarketValue"], axis=1)
         self.y = df["MarketValue"]
 
     def train_model(self):
+        # scaler_X = StandardScaler()
+        # scaler_y = StandardScaler()
+        # X_scaled = scaler_X.fit_transform(self.X)
+        # y_scaled = scaler_y.fit_transform(self.y.values.reshape(-1, 1)).flatten()
+
         X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.15)
 
         X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.07)

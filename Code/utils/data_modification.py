@@ -1,3 +1,6 @@
+import numpy as np
+from scipy.stats import zscore
+
 from Code.utils.calculations import percentage, only_positive_values
 
 
@@ -33,9 +36,26 @@ def get_structure_changes(data):
         if data[i][0] != data[i - 1][0]:
             continue
         x = [data[i][0], data[i][1],
-             (data[i][2] - data[i - 1][2]) / data[i - 1][2]]
+             percentage((data[i][2] - data[i - 1][2]), data[i - 1][2])]
+        # x = [data[i][0], data[i][1], 1 if data[i][2] - data[i - 1][2] > 0 else 0]
         for j in range(3, len(data[i])):
             x.append(data[i][j] - data[i - 1][j])
+            # if data[i - 1][j] != 0:
+            #     x.append(percentage(data[i][j] - data[i - 1][j], data[i - 1][j]))
+            # else:
+            #     x.append(data[i][j])
         final_data.append(x)
 
     return final_data
+
+
+def get_filtered_changes(data):
+    final_data_np = np.array(data, dtype=object)
+    only_structure = np.array(final_data_np[:, 3:], dtype=float)
+    data_standardized = zscore(only_structure)
+    mask = np.abs(data_standardized) < 3
+    valid_rows = np.all(mask, axis=1)
+    filtered_data = final_data_np[valid_rows]
+
+    return filtered_data.tolist()
+    # return data

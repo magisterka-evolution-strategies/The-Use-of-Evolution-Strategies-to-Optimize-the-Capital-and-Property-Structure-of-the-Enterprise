@@ -40,7 +40,7 @@ class StructureChange:
         outputs = keras.layers.Dense(1)
         model.add(outputs)
 
-        optimizer = keras.optimizers.Adam(learning_rate=0.00001)
+        optimizer = keras.optimizers.Adam(learning_rate=0.0001)
         model.compile(optimizer=optimizer, loss="mean_squared_error", metrics=["mean_absolute_error"])
 
         # inputs = keras.Input(shape=(self.X.shape[1],))

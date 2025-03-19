@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV
+
 from Code.utils.data_modification import get_percentage_structure, get_structure_changes, get_filtered_changes
 from Code.utils.retrieve_data import get_raw_sql_data
 

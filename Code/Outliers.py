@@ -1,3 +1,6 @@
+import os
+
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -22,16 +25,31 @@ class Outliers:
 
         self.df_outliers = self.df_outliers.drop(["CompanyID", "Period", "MarketValue"], axis=1)
 
+        self.model_path = "models/isolation_forest_model.pkl"
+
+    def get_model(self):
+        if os.path.exists(self.model_path):
+            print("Loading existing Isolation Forest model...")
+            isolation_forest = joblib.load(self.model_path)
+        else:
+            print("No saved model found. Training a new Isolation Forest model...")
+            isolation_forest = self.train_model(contamination=0.034)
+
+        self.isolation_forest = isolation_forest
+        return self.isolation_forest
+
     def train_model(self, test_size=0.1, contamination=0.01):
         X_outliers_train, X_outliers_test = train_test_split(self.df_outliers, test_size=test_size)
 
-        self.isolation_forest = IsolationForest(contamination=contamination)
-        self.isolation_forest.fit(X_outliers_train)
-        test_outliers = self.isolation_forest.predict(X_outliers_test)
+        isolation_forest = IsolationForest(contamination=contamination)
+        isolation_forest.fit(X_outliers_train)
+        test_outliers = isolation_forest.predict(X_outliers_test)
 
         test_outliers = X_outliers_test[test_outliers == -1]
 
         print("Number of outliers in test data:", len(test_outliers), "out of:", len(X_outliers_test))
+
+        joblib.dump(isolation_forest, self.model_path)
 
         # dbscan = DBSCAN(eps=10, min_samples=2)
         # dbscan.fit(X_train)
@@ -41,7 +59,7 @@ class Outliers:
         #
         # print("Number of outliers in test data:", len(test_outliers))
 
-        return self.isolation_forest
+        return isolation_forest
 
     def check(self, percentage_structure_data):
         X = pd.DataFrame(percentage_structure_data,

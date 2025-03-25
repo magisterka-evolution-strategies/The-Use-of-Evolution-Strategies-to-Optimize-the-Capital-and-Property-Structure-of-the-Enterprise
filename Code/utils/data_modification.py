@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.stats import zscore
 
 from Code.utils.calculations import percentage, only_positive_values
@@ -23,7 +24,7 @@ def get_percentage_structure(data):
         for liability in liabilities:
             row.append(percentage(liability, total_liabilities))
 
-        if only_positive_values(assets) and only_positive_values(liabilities): # if we accept only positive values
+        if only_positive_values(assets) and only_positive_values(liabilities):  # if we accept only positive values
             percentage_structure_data.append(row)
 
     return percentage_structure_data
@@ -49,6 +50,22 @@ def get_structure_changes(data):
     return final_data
 
 
+def get_structure_changes_all(data):
+    final_data = []
+
+    for i in range(1, len(data)):
+        for j in range(i - 1, 0, -1):
+            if data[i][0] != data[j][0]:
+                break
+            x = [data[i][0], data[i][1],
+                 percentage((data[i][2] - data[j][2]), data[j][2])]
+            for k in range(3, len(data[i])):
+                x.append(data[i][k] - data[j][k])
+            final_data.append(x)
+
+    return final_data
+
+
 def get_filtered_changes(data):
     final_data_np = np.array(data, dtype=object)
     only_structure = np.array(final_data_np[:, 3:], dtype=float)
@@ -58,4 +75,3 @@ def get_filtered_changes(data):
     filtered_data = final_data_np[valid_rows]
 
     return filtered_data.tolist()
-    # return data

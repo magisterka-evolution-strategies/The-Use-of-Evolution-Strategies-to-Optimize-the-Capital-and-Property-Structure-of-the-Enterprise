@@ -1,8 +1,8 @@
 import sqlite3
 
 
-def get_raw_sql_data():
-    conn = sqlite3.connect("exporter_new.db")
+def get_raw_sql_data(filename: str):
+    conn = sqlite3.connect(filename)
 
     cursor = conn.execute(
         "SELECT C.ID, COUNT(*) AS Total FROM Company AS C JOIN AssetsCategories AS AC ON AC.CompanyID = C.ID JOIN "

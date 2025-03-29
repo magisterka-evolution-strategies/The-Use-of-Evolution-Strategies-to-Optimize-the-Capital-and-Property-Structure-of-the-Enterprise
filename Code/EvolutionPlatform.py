@@ -1,6 +1,8 @@
 import csv
 import os
+from typing import List
 
+from Code.EvolutionStrategyInterface import EvolutionStrategyInterface
 from Company import Company
 from Code.utils.generate_company_structure import generate_structure_mean
 
@@ -10,6 +12,7 @@ class EvolutionPlatform:
         self.outliers_model = outliers_model
         self.structure_change_model = structure_change_model
         self.generated_companies = []
+        self.evolution_strategies: List[EvolutionStrategyInterface] = []
 
         self.data_path = "data/start_companies.csv"
 
@@ -47,3 +50,13 @@ class EvolutionPlatform:
         for company in self.generated_companies:
             values = company.to_dataframe().values[0]
             print(["{:.2f}".format(num) for num in values])
+
+    def add_evolution_strategy(self, evolution_strategy: EvolutionStrategyInterface):
+        self.evolution_strategies.append(evolution_strategy)
+
+    def start_evolution(self, epochs: int):
+        for epoch in range(epochs):
+            print(epoch)
+            for evolution_strategy in self.evolution_strategies:
+                evolution_strategy.generate_offspring()
+                evolution_strategy.check_generated_structures()

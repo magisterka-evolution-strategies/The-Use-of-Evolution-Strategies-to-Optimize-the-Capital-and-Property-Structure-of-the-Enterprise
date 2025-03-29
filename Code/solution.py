@@ -1,5 +1,6 @@
 from Code.EvolutionPlatform import EvolutionPlatform
-from Code.utils.data_information import get_data_statistics
+from Code.OnePlusOne import OnePlusOne
+from Code.utils.data_information import get_structure_data_statistics, get_change_data_statistics
 from Code.utils.data_visualization import visualize_all
 from Outliers import Outliers
 from StructureChange import StructureChange
@@ -20,10 +21,9 @@ isolation_forest = outliers.get_model()
 # means = outliers.get_mean_values()
 
 structure_changes_data = get_structure_changes(percentage_structure_data)
-
 filtered_changes_data = get_filtered_changes(structure_changes_data)
 
-means = get_data_statistics(percentage_structure_data, isolation_forest)
+means_structure = get_structure_data_statistics(percentage_structure_data, isolation_forest)
 # get_data_statistics(filtered_changes_data)
 
 structure_change = StructureChange(filtered_changes_data)
@@ -33,6 +33,14 @@ evolution_platform = EvolutionPlatform(isolation_forest, structure_change_model)
 
 number_of_companies = 10
 evolution_platform.load_companies(number_of_companies)
-evolution_platform.generate_start_companies(number_of_companies, means)
+evolution_platform.generate_start_companies(number_of_companies, means_structure)
 
 evolution_platform.check_generated_structures()
+
+means_changes = get_change_data_statistics(filtered_changes_data)
+
+one_plus_one = OnePlusOne(evolution_platform, means_changes)
+
+evolution_platform.add_evolution_strategy(one_plus_one)
+
+evolution_platform.start_evolution(1)

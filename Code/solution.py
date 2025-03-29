@@ -1,5 +1,6 @@
 from Code.EvolutionPlatform import EvolutionPlatform
-from Code.OnePlusOne import OnePlusOne
+from Code.OnePlusOneMean import OnePlusOneMean
+from Code.OnePlusOneRandom import OnePlusOneRandom
 from Code.utils.data_information import get_structure_data_statistics, get_change_data_statistics
 from Code.utils.data_visualization import visualize_all
 from Outliers import Outliers
@@ -35,12 +36,16 @@ number_of_companies = 10
 evolution_platform.load_companies(number_of_companies)
 evolution_platform.generate_start_companies(number_of_companies, means_structure)
 
-evolution_platform.check_generated_structures()
+evolution_platform.show_structures()
 
-means_changes = get_change_data_statistics(filtered_changes_data)
+mean_changes, std_changes = get_change_data_statistics(filtered_changes_data)
 
-one_plus_one = OnePlusOne(evolution_platform, means_changes)
+one_plus_one_random = OnePlusOneRandom(evolution_platform)
+one_plus_one_mean = OnePlusOneMean(evolution_platform, mean_changes, std_changes)
 
-evolution_platform.add_evolution_strategy(one_plus_one)
+evolution_platform.add_evolution_strategy(one_plus_one_random)
+evolution_platform.add_evolution_strategy(one_plus_one_mean)
 
-evolution_platform.start_evolution(1)
+evolution_platform.start_evolution(10)
+
+evolution_platform.show_all()

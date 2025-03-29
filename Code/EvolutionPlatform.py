@@ -46,17 +46,23 @@ class EvolutionPlatform:
                 company = Company(*structure)
                 self.generated_companies.append(company)
 
-    def check_generated_structures(self):
+    def show_structures(self):
         for company in self.generated_companies:
             values = company.to_dataframe().values[0]
             print(["{:.2f}".format(num) for num in values])
+
+    def show_all(self):
+        for evolution_strategy in self.evolution_strategies:
+            print(evolution_strategy.__class__)
+            for company in evolution_strategy.generated_companies:
+                values = company.to_dataframe().values[0]
+                print(["{:.2f}".format(num) for num in values])
 
     def add_evolution_strategy(self, evolution_strategy: EvolutionStrategyInterface):
         self.evolution_strategies.append(evolution_strategy)
 
     def start_evolution(self, epochs: int):
         for epoch in range(epochs):
-            print(epoch)
+            print("Epoch: {0}/{1}".format(epoch + 1, epochs))
             for evolution_strategy in self.evolution_strategies:
                 evolution_strategy.generate_offspring()
-                evolution_strategy.check_generated_structures()

@@ -61,4 +61,4 @@ def get_change_data_statistics(data):
     # print("\nMax:")
     # print(max_values)
 
-    return r1
+    return r1, r2

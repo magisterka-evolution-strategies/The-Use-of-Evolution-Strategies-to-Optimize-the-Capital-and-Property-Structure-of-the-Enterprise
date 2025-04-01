@@ -1,15 +1,15 @@
-import random
-
 import numpy as np
 import pandas as pd
+from pandas import Series
 
 from Code.Company import Company
+from Code.EvolutionPlatform import EvolutionPlatform
 from Code.EvolutionStrategyInterface import EvolutionStrategyInterface
 from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneMean(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform, mean_changes, std_changes):
+    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float, std_changes: Series | float):
         super().__init__(evolution_platform)
         self.mean_assets = mean_changes[:5]
         self.mean_liabilities = mean_changes[5:]

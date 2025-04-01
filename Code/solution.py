@@ -1,4 +1,5 @@
 from Code.EvolutionPlatform import EvolutionPlatform
+from Code.MiPlusLambda import MiPlusLambda
 from Code.OnePlusOneMean import OnePlusOneMean
 from Code.OnePlusOneRandom import OnePlusOneRandom
 from Code.utils.data_information import get_structure_data_statistics, get_change_data_statistics
@@ -42,10 +43,14 @@ mean_changes, std_changes = get_change_data_statistics(filtered_changes_data)
 
 one_plus_one_random = OnePlusOneRandom(evolution_platform)
 one_plus_one_mean = OnePlusOneMean(evolution_platform, mean_changes, std_changes)
+mi = 5
+la = 3
+mi_plus_lambda = MiPlusLambda(evolution_platform, mi, la)
 
-evolution_platform.add_evolution_strategy(one_plus_one_random)
-evolution_platform.add_evolution_strategy(one_plus_one_mean)
+# evolution_platform.add_evolution_strategy(one_plus_one_random)
+# evolution_platform.add_evolution_strategy(one_plus_one_mean)
+evolution_platform.add_evolution_strategy(mi_plus_lambda)
 
-evolution_platform.start_evolution(10)
+evolution_platform.start_evolution(1)
 
 evolution_platform.show_all()

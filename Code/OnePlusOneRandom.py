@@ -3,12 +3,13 @@ import random
 import pandas as pd
 
 from Code.Company import Company
+from Code.EvolutionPlatform import EvolutionPlatform
 from Code.EvolutionStrategyInterface import EvolutionStrategyInterface
 from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneRandom(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform):
+    def __init__(self, evolution_platform: EvolutionPlatform):
         super().__init__(evolution_platform)
 
     def generate_random_gradient(self):

@@ -1,7 +1,11 @@
+import csv
+import os
+
 import numpy as np
 from scipy.stats import zscore
 from sklearn.decomposition import PCA
 
+from Code.Company import Company
 from Code.utils.calculations import percentage
 from Code.utils.data_modification import get_percentage_structure, get_structure_changes
 from Code.utils.data_visualization import visualize, visualize_all
@@ -60,6 +64,22 @@ visualize(only_structure, text, color, pca, [-120, 120], [-120, 160])
 visualize(data_filtered, text, color, pca, [-120, 120], [-120, 160])
 
 visualize_all(only_structure, data_filtered, text, color, pca, [-120, 120], [-120, 160])
+
+
+
+generated_companies = []
+
+if os.path.exists("../data/start_companies.csv"):
+    number_of_companies = 20
+    with open("../data/start_companies.csv", "r") as file:
+        reader = csv.reader(file, quoting=csv.QUOTE_NONNUMERIC)
+        tmp = [row for row in reader]
+        tmp = tmp[:min(number_of_companies, len(tmp))]
+        for structure in tmp:
+            company = Company(*structure)
+            generated_companies.append(company)
+
+visualize_all(only_structure, np.array(list(map(lambda x: x.to_array(), generated_companies))), text, color, pca, [-120, 120], [-120, 160])
 
 
 

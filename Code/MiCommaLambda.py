@@ -1,3 +1,4 @@
+import math
 import random
 
 import pandas as pd
@@ -8,7 +9,7 @@ from Code.EvolutionStrategyInterface import EvolutionStrategyInterface
 from Code.utils.calculations import only_positive_values
 
 
-class MiPlusLambda(EvolutionStrategyInterface):
+class MiCommaLambda(EvolutionStrategyInterface):
     def __init__(self, evolution_platform: EvolutionPlatform, mi: int, la: int, factor: float):
         super().__init__(evolution_platform)
         self.mi = mi
@@ -16,8 +17,8 @@ class MiPlusLambda(EvolutionStrategyInterface):
         self.factor = factor
 
     def generate_best_company(self, company: Company):
-        best_company = company
-        best_score = 0
+        best_company = None
+        best_score = -math.inf
         for i in range(self.la):
             parents = random.sample(self.generated_companies, min(self.mi, len(self.generated_companies)))
             parents = list(map(lambda x: x.to_array(), parents))
@@ -51,6 +52,8 @@ class MiPlusLambda(EvolutionStrategyInterface):
         for i, company in enumerate(self.generated_companies):
             while i + 1 != len(new_companies):
                 child_company = self.generate_best_company(company)
+                if child_company is None:
+                    child_company = company
                 new_companies.append(child_company)
 
         self.generated_companies = new_companies

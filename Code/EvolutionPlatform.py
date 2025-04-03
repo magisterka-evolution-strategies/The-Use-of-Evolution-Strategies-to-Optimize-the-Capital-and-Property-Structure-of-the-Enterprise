@@ -11,7 +11,7 @@ class EvolutionPlatform:
     def __init__(self, outliers_model, structure_change_model):
         self.outliers_model = outliers_model
         self.structure_change_model = structure_change_model
-        self.generated_companies = []
+        self.generated_companies: List[Company] = []
         self.evolution_strategies: List[EvolutionStrategyInterface] = []
 
         self.data_path = "data/start_companies.csv"
@@ -54,9 +54,7 @@ class EvolutionPlatform:
     def show_all(self):
         for evolution_strategy in self.evolution_strategies:
             print(evolution_strategy.__class__)
-            for company in evolution_strategy.generated_companies:
-                values = company.to_dataframe().values[0]
-                print("{:.2f}".format(company.value), ["{:.2f}".format(num) for num in values])
+            evolution_strategy.check_generated_structures()
 
     def add_evolution_strategy(self, evolution_strategy: EvolutionStrategyInterface):
         self.evolution_strategies.append(evolution_strategy)

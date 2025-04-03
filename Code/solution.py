@@ -34,7 +34,7 @@ structure_change_model = structure_change.get_model()
 
 evolution_platform = EvolutionPlatform(isolation_forest, structure_change_model)
 
-number_of_companies = 20
+number_of_companies = 10
 evolution_platform.load_companies(number_of_companies)
 evolution_platform.generate_start_companies(number_of_companies, means_structure)
 
@@ -44,9 +44,9 @@ mean_changes, std_changes = get_change_data_statistics(filtered_changes_data)
 
 one_plus_one_random = OnePlusOneRandom(evolution_platform)
 one_plus_one_mean = OnePlusOneMean(evolution_platform, mean_changes, std_changes)
-mi = 5
+mi = 10
 la = 5
-factor = 10
+factor = 8
 mi_plus_lambda = MiPlusLambda(evolution_platform, mi, la, factor)
 mi_comma_lambda = MiCommaLambda(evolution_platform, mi, la, factor)
 

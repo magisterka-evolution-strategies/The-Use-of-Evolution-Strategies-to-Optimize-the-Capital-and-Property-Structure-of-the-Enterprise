@@ -64,5 +64,6 @@ class EvolutionPlatform:
     def start_evolution(self, epochs: int):
         for epoch in range(epochs):
             print("Epoch: {0}/{1}".format(epoch + 1, epochs))
-            for evolution_strategy in self.evolution_strategies:
+            for i, evolution_strategy in enumerate(self.evolution_strategies):
                 evolution_strategy.generate_offspring()
+                print("Complete: {0}/{1}".format(i + 1, len(self.evolution_strategies)))

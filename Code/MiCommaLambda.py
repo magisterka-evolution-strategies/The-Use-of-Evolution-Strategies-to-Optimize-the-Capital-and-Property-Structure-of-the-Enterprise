@@ -1,6 +1,7 @@
 import math
 import random
 
+import numpy as np
 import pandas as pd
 
 from Code.Company import Company
@@ -16,6 +17,17 @@ class MiCommaLambda(EvolutionStrategyInterface):
         self.la = la
         self.factor = factor
 
+    def generate_random_gradient(self):
+        values = []
+        for _ in range(4):
+            values.append(random.uniform(-1, 1))
+        fifth_value = -sum(values)
+        if -1 <= fifth_value <= 1:
+            values.append(fifth_value)
+        else:
+            return self.generate_random_gradient()
+        return values
+
     def generate_best_company(self, company: Company):
         best_company = None
         best_score = -math.inf
@@ -29,8 +41,11 @@ class MiCommaLambda(EvolutionStrategyInterface):
                                        "NonCurrentLiabilities",
                                        "CurrentLiabilities",
                                        "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
-            rotation = 1 if random.random() < 0.5 else -1
-            change = rotation * (company.to_dataframe() - df.mean()) / self.factor
+            rotation = random.choice([-1, 1])
+            mean = df.mean()
+            mutation = np.concatenate([self.generate_random_gradient(), self.generate_random_gradient()])
+            final_change = mean + mutation
+            change = rotation * (company.to_dataframe() - final_change) / self.factor
             new_company_values = [x + y for x, y in
                                   zip(company.to_array(), change.values.tolist()[0])]
             if not only_positive_values(new_company_values):

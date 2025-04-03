@@ -26,27 +26,29 @@ class OnePlusOneRandom(EvolutionStrategyInterface):
     def generate_offspring(self):
         new_companies = []
         for i, company in enumerate(self.generated_companies):
-            while i + 1 != len(new_companies):
-                gradient_assets = self.generate_random_gradient()
-                gradient_liabilities = self.generate_random_gradient()
-                new_company_values = [x + y for x, y in
-                                      zip(company.to_array(), [*gradient_assets, *gradient_liabilities])]
-                if not only_positive_values(new_company_values):
-                    continue
-                df = pd.DataFrame([[*gradient_assets, *gradient_liabilities]],
-                                  columns=["NonCurrentAssets", "CurrentAssets",
-                                           "AssetsHeldForSaleAndDiscountinuingOperations", "CalledUpCapital", "OwnShares",
-                                           "EquityShareholdersOfTheParent", "NonControllingInterests",
-                                           "NonCurrentLiabilities",
-                                           "CurrentLiabilities",
-                                           "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
-                predictions = self.structure_change_model.predict(df, verbose=None)
-                prediction = predictions[0][0]
-                if prediction <= 0:
-                    continue
-                child_company = Company(*new_company_values)
-                if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
-                    continue
-                new_companies.append(child_company)
+            gradient_assets = self.generate_random_gradient()
+            gradient_liabilities = self.generate_random_gradient()
+            new_company_values = [x + y for x, y in
+                                  zip(company.to_array(), [*gradient_assets, *gradient_liabilities])]
+            if not only_positive_values(new_company_values):
+                new_companies.append(company)
+                continue
+            df = pd.DataFrame([[*gradient_assets, *gradient_liabilities]],
+                              columns=["NonCurrentAssets", "CurrentAssets",
+                                       "AssetsHeldForSaleAndDiscountinuingOperations", "CalledUpCapital", "OwnShares",
+                                       "EquityShareholdersOfTheParent", "NonControllingInterests",
+                                       "NonCurrentLiabilities",
+                                       "CurrentLiabilities",
+                                       "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
+            predictions = self.structure_change_model.predict(df, verbose=None)
+            prediction = predictions[0][0]
+            if prediction <= 0:
+                new_companies.append(company)
+                continue
+            child_company = Company(*new_company_values)
+            if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
+                new_companies.append(company)
+                continue
+            new_companies.append(child_company)
 
         self.generated_companies = new_companies

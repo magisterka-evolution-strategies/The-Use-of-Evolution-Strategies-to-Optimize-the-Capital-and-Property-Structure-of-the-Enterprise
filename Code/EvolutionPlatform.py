@@ -56,7 +56,7 @@ class EvolutionPlatform:
             print(evolution_strategy.__class__)
             for company in evolution_strategy.generated_companies:
                 values = company.to_dataframe().values[0]
-                print(["{:.2f}".format(num) for num in values])
+                print("{:.2f}".format(company.value), ["{:.2f}".format(num) for num in values])
 
     def add_evolution_strategy(self, evolution_strategy: EvolutionStrategyInterface):
         self.evolution_strategies.append(evolution_strategy)

@@ -19,6 +19,11 @@ class Company:
         self.current_liabilities = current_liabilities
         self.liabilities_related_to_assets_held_for_sale_and_discontinued_operations = liabilities_related_to_assets_held_for_sale_and_discontinued_operations
 
+        self.value = 100
+
+    def change_company_value(self, change: float):
+        self.value = self.value * (100 + change) / 100
+
     def to_array(self):
         return [
             self.non_current_assets,

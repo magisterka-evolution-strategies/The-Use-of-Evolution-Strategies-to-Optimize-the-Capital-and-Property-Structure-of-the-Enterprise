@@ -50,10 +50,10 @@ factor = 10
 mi_plus_lambda = MiPlusLambda(evolution_platform, mi, la, factor)
 mi_comma_lambda = MiCommaLambda(evolution_platform, mi, la, factor)
 
-evolution_platform.add_evolution_strategy(one_plus_one_random)
-evolution_platform.add_evolution_strategy(one_plus_one_mean)
+# evolution_platform.add_evolution_strategy(one_plus_one_random)
+# evolution_platform.add_evolution_strategy(one_plus_one_mean)
 evolution_platform.add_evolution_strategy(mi_plus_lambda)
-evolution_platform.add_evolution_strategy(mi_comma_lambda)
+# evolution_platform.add_evolution_strategy(mi_comma_lambda)
 
 epochs = 10
 evolution_platform.start_evolution(epochs)

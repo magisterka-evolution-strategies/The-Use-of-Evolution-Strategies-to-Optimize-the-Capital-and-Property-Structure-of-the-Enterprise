@@ -56,6 +56,7 @@ class MiPlusLambda(EvolutionStrategyInterface):
             child_company = Company(*new_company_values)
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 continue
+            child_company.change_company_value(prediction)
             best_score = prediction
             best_company = child_company
 
@@ -64,8 +65,7 @@ class MiPlusLambda(EvolutionStrategyInterface):
     def generate_offspring(self):
         new_companies = []
         for i, company in enumerate(self.generated_companies):
-            while i + 1 != len(new_companies):
-                child_company = self.generate_best_company(company)
-                new_companies.append(child_company)
+            child_company = self.generate_best_company(company)
+            new_companies.append(child_company)
 
         self.generated_companies = new_companies

@@ -65,10 +65,9 @@ class MiCommaLambda(EvolutionStrategyInterface):
     def generate_offspring(self):
         new_companies = []
         for i, company in enumerate(self.generated_companies):
-            while i + 1 != len(new_companies):
-                child_company = self.generate_best_company(company)
-                if child_company is None:
-                    child_company = company
-                new_companies.append(child_company)
+            child_company = self.generate_best_company(company)
+            if child_company is None:
+                child_company = company
+            new_companies.append(child_company)
 
         self.generated_companies = new_companies

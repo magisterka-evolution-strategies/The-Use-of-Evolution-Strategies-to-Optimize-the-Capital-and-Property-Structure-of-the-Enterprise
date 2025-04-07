@@ -20,8 +20,8 @@ class EvolutionPlatform:
         start_len = len(self.generated_companies)
 
         while len(self.generated_companies) < number_of_companies:
-            assets = generate_structure_mean(means[:5], 5)
-            liabilities = generate_structure_mean(means[5:], 5)
+            assets = generate_structure_mean(means[:5], 10)
+            liabilities = generate_structure_mean(means[5:], 10)
             company = Company(*assets, *liabilities)
             if self.outliers_model.predict(company.to_dataframe())[0] == -1:
                 continue

@@ -21,6 +21,21 @@ class Company:
 
         self.value = 100
 
+    def modify_structure(self, non_current_assets, current_assets, assets_held_for_sale_and_discontinued_operations,
+                 called_up_capital, own_shares, equity_shareholders_of_the_parent, non_controlling_interests,
+                 non_current_liabilities, current_liabilities,
+                 liabilities_related_to_assets_held_for_sale_and_discontinued_operations):
+        self.non_current_assets += non_current_assets
+        self.current_assets += current_assets
+        self.assets_held_for_sale_and_discontinued_operations += assets_held_for_sale_and_discontinued_operations
+        self.called_up_capital += called_up_capital
+        self.own_shares += own_shares
+        self.equity_shareholders_of_the_parent += equity_shareholders_of_the_parent
+        self.non_controlling_interests += non_controlling_interests
+        self.non_current_liabilities += non_current_liabilities
+        self.current_liabilities += current_liabilities
+        self.liabilities_related_to_assets_held_for_sale_and_discontinued_operations += liabilities_related_to_assets_held_for_sale_and_discontinued_operations
+
     def change_company_value(self, change: float):
         self.value = self.value * (100 + change) / 100
 

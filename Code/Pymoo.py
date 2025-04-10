@@ -13,8 +13,8 @@ class Pymoo(Problem):
     def __init__(self, companies, mean_changes: Series | float, std_changes: Series | float, ml_model, outliers_model):
         super().__init__(n_var=10, n_obj=1, xl=-1, xu=1)
         self.base_companies = companies
-        self.mean = mean_changes
-        self.std = std_changes
+        self.mean_changes = mean_changes
+        self.std_changes = std_changes
         self.ml_model = ml_model
         self.outliers_model = outliers_model
         self.changes_to_apply = []
@@ -27,7 +27,7 @@ class Pymoo(Problem):
             company_index = i % len(self.base_companies)
             base_company = self.base_companies[company_index]
 
-            raw_change = np.random.normal(loc=self.mean, scale=self.std)
+            raw_change = np.random.normal(loc=self.mean_changes, scale=self.std_changes)
 
             change = change * raw_change
 

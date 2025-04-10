@@ -32,10 +32,10 @@ class OnePlusOneMean(EvolutionStrategyInterface):
     def generate_assets_gradient(self):
         n = len(self.mean_assets)
 
-        gradients = np.random.normal(loc=self.mean_assets, scale=self.std_assets, size=n)
-        random_gradient = self.generate_random_gradient()
+        gradients = np.random.normal(loc=self.mean_assets, scale=0.1, size=n)
 
-        gradients += np.array(random_gradient)
+        # random_gradient = self.generate_random_gradient()
+        # gradients += np.array(random_gradient)
 
         gradients -= np.mean(gradients)
 
@@ -44,10 +44,10 @@ class OnePlusOneMean(EvolutionStrategyInterface):
     def generate_liabilities_gradient(self):
         n = len(self.mean_liabilities)
 
-        gradients = np.random.normal(loc=self.mean_liabilities, scale=self.std_liabilities, size=n)
-        random_gradient = self.generate_random_gradient()
+        gradients = np.random.normal(loc=self.mean_liabilities, scale=0.1, size=n)
 
-        gradients += np.array(random_gradient)
+        # random_gradient = self.generate_random_gradient()
+        # gradients += np.array(random_gradient)
 
         gradients -= np.mean(gradients)
 
@@ -58,6 +58,7 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         for i, company in enumerate(self.generated_companies):
             gradient_assets = self.generate_assets_gradient()
             gradient_liabilities = self.generate_liabilities_gradient()
+            # print([*gradient_assets, *gradient_liabilities])
             new_company_values = [x + y for x, y in
                                   zip(company.to_array(), [*gradient_assets, *gradient_liabilities])]
             if not only_positive_values(new_company_values):
@@ -79,6 +80,7 @@ class OnePlusOneMean(EvolutionStrategyInterface):
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 new_companies.append(company)
                 continue
+            child_company.value = company.value
             child_company.change_company_value(prediction)
             new_companies.append(child_company)
 

@@ -56,50 +56,17 @@ class MiPlusLambda(EvolutionStrategyInterface):
             child_company = Company(*new_company_values)
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 continue
-            child_company.change_company_value(prediction)
             best_score = prediction
             best_company = child_company
 
-        return best_company
+        return best_company, best_score
 
     def generate_offspring(self):
-        new_companies = self.generated_companies.copy()
+        new_companies = []
+        for i, company in enumerate(self.generated_companies):
+            best_company, best_score = self.generate_best_company(company)
+            best_company.value = company.value
+            best_company.change_company_value(best_score)
+            new_companies.append(best_company)
 
-        i = 0
-        while i < self.la:
-            parents = random.sample(self.generated_companies, min(self.mi, len(self.generated_companies)))
-            parents = list(map(lambda x: x.to_array(), parents))
-            df = pd.DataFrame(parents,
-                              columns=["NonCurrentAssets", "CurrentAssets",
-                                       "AssetsHeldForSaleAndDiscountinuingOperations", "CalledUpCapital", "OwnShares",
-                                       "EquityShareholdersOfTheParent", "NonControllingInterests",
-                                       "NonCurrentLiabilities",
-                                       "CurrentLiabilities",
-                                       "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
-            rotation = random.choice([-1, 1])
-            mean = df.mean()
-            # parent = random.choice(self.generated_companies)
-            parent = random.randint(0, len(self.generated_companies) - 1)
-            change = rotation * (new_companies[parent].to_dataframe() - mean) / self.factor
-            mutation = np.concatenate([self.generate_random_gradient(), self.generate_random_gradient()])
-            # final_change = change
-            final_change = change + mutation
-            # print(change.values.tolist()[0])
-            # print(mutation.tolist())
-            # print(final_change.values.tolist()[0])
-            # print()
-            new_company_values = [x + y for x, y in
-                                  zip(new_companies[parent].to_array(), final_change.values.tolist()[0])]
-            if not only_positive_values(new_company_values):
-                continue
-            predictions = self.structure_change_model.predict(final_change, verbose=None)
-            prediction = predictions[0][0]
-            child_company = Company(*new_company_values)
-            if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
-                continue
-            child_company.change_company_value(prediction)
-            new_companies[parent] = child_company
-            i += 1
-
-        # new_companies = sorted(new_companies, key=lambda company: company.value, reverse=True)[:self.mi]
         self.generated_companies = new_companies

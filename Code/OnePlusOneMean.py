@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pandas as pd
 from pandas import Series
@@ -16,10 +18,24 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         self.std_assets = std_changes[:5]
         self.std_liabilities = std_changes[5:]
 
+    def generate_random_gradient(self):
+        values = []
+        for _ in range(4):
+            values.append(random.uniform(-1, 1))
+        fifth_value = -sum(values)
+        if -1 <= fifth_value <= 1:
+            values.append(fifth_value)
+        else:
+            return self.generate_random_gradient()
+        return values
+
     def generate_assets_gradient(self):
         n = len(self.mean_assets)
 
         gradients = np.random.normal(loc=self.mean_assets, scale=self.std_assets, size=n)
+        random_gradient = self.generate_random_gradient()
+
+        gradients += np.array(random_gradient)
 
         gradients -= np.mean(gradients)
 
@@ -29,6 +45,9 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         n = len(self.mean_liabilities)
 
         gradients = np.random.normal(loc=self.mean_liabilities, scale=self.std_liabilities, size=n)
+        random_gradient = self.generate_random_gradient()
+
+        gradients += np.array(random_gradient)
 
         gradients -= np.mean(gradients)
 

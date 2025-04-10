@@ -2,16 +2,21 @@ import math
 
 import numpy as np
 import pandas as pd
+from pandas import Series
 from pymoo.core.problem import Problem
 
+from Code.Company import Company
 from Code.utils.calculations import only_positive_values
 
 
 class Pymoo(Problem):
-    def __init__(self, companies, ml_model):
-        super().__init__(n_var=10, n_obj=1, xl=-2, xu=2)
+    def __init__(self, companies, mean_changes: Series | float, std_changes: Series | float, ml_model, outliers_model):
+        super().__init__(n_var=10, n_obj=1, xl=-1, xu=1)
         self.base_companies = companies
+        self.mean = mean_changes
+        self.std = std_changes
         self.ml_model = ml_model
+        self.outliers_model = outliers_model
         self.changes_to_apply = []
 
     def _evaluate(self, X, out, *args, **kwargs):
@@ -21,6 +26,16 @@ class Pymoo(Problem):
         for i, change in enumerate(X):
             company_index = i % len(self.base_companies)
             base_company = self.base_companies[company_index]
+
+            raw_change = np.random.normal(loc=self.mean, scale=self.std)
+
+            change = change * raw_change
+
+            part1 = change[:5]
+            part1 -= np.mean(part1)
+            part2 = change[5:]
+            part2 -= np.mean(part2)
+            change = np.concatenate([part1, part2])
 
             df = pd.DataFrame([change], columns=[
                 "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
@@ -49,11 +64,14 @@ class Pymoo(Problem):
                 new_company_values = np.array(self.base_companies[company_index].to_array()) + change.ravel()
                 if not only_positive_values(new_company_values):
                     continue
+                child_company = Company(*new_company_values)
+                if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
+                    continue
                 best_changes[company_index] = (change, prediction)
 
         for company_index, (change, prediction) in best_changes.items():
-            print(company_index, prediction)
             if prediction == -math.inf:
                 continue
+            print(company_index, prediction)
             self.base_companies[company_index].modify_structure(*change.ravel())
             self.base_companies[company_index].change_company_value(prediction)

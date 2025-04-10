@@ -32,7 +32,7 @@ def get_structure_data_statistics(data, outliers_model):
     # print("\nMax:")
     # print(max_values)
 
-    return r1
+    return r1, r2
 
 def get_change_data_statistics(data):
     df = pd.DataFrame(data,

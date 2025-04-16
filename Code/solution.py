@@ -61,8 +61,8 @@ pymoo_es = PymooES(evolution_platform, mean_changes, adjusted_std)
 # evolution_platform.add_evolution_strategy(one_plus_one_random)
 # evolution_platform.add_evolution_strategy(one_plus_one_mean)
 # evolution_platform.add_evolution_strategy(mi_plus_lambda)
-evolution_platform.add_evolution_strategy(mi_comma_lambda)
-# evolution_platform.add_evolution_strategy(pymoo_es)
+# evolution_platform.add_evolution_strategy(mi_comma_lambda)
+evolution_platform.add_evolution_strategy(pymoo_es)
 
 epochs = 10
 evolution_platform.start_evolution(epochs)

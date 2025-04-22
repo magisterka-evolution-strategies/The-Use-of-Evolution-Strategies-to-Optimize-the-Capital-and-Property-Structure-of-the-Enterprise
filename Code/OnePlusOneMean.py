@@ -11,7 +11,8 @@ from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneMean(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float, std_changes: Series | float):
+    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float,
+                 std_changes: Series | float):
         super().__init__(evolution_platform)
         self.mean_assets = mean_changes[:5]
         self.mean_liabilities = mean_changes[5:]
@@ -19,24 +20,17 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         self.std_liabilities = std_changes[5:]
 
     def generate_random_gradient(self):
-        values = []
-        for _ in range(4):
-            values.append(random.uniform(-1, 1))
-        fifth_value = -sum(values)
-        if -1 <= fifth_value <= 1:
-            values.append(fifth_value)
-        else:
-            return self.generate_random_gradient()
-        return values
+        while True:
+            values = np.random.uniform(-1, 1, 4)
+            fifth_value = -np.sum(values)
+            if -1 <= fifth_value <= 1:
+                return np.append(values, fifth_value).tolist()
 
     def generate_assets_gradient(self):
         n = len(self.mean_assets)
 
         gradients = np.random.normal(loc=self.mean_assets, scale=0.1, size=n)
-
-        # random_gradient = self.generate_random_gradient()
-        # gradients += np.array(random_gradient)
-
+        # gradients = np.random.normal(loc=self.mean_assets, scale=self.std_assets, size=n)
         gradients -= np.mean(gradients)
 
         return gradients.tolist()
@@ -45,6 +39,7 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         n = len(self.mean_liabilities)
 
         gradients = np.random.normal(loc=self.mean_liabilities, scale=0.1, size=n)
+        # gradients = np.random.normal(loc=self.mean_liabilities, scale=self.std_liabilities, size=n)
 
         # random_gradient = self.generate_random_gradient()
         # gradients += np.array(random_gradient)

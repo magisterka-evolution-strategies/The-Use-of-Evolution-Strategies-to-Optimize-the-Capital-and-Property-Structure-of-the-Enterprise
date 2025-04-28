@@ -18,15 +18,11 @@ class MiCommaLambda(EvolutionStrategyInterface):
         self.factor = factor
 
     def generate_random_gradient(self):
-        values = []
-        for _ in range(4):
-            values.append(random.uniform(-1, 1))
-        fifth_value = -sum(values)
-        if -1 <= fifth_value <= 1:
-            values.append(fifth_value)
-        else:
-            return self.generate_random_gradient()
-        return values
+        while True:
+            values = np.random.uniform(-1, 1, 4)
+            fifth_value = -np.sum(values)
+            if -1 <= fifth_value <= 1:
+                return np.append(values, fifth_value).tolist()
 
     def generate_best_company(self, company: Company):
         best_company = company

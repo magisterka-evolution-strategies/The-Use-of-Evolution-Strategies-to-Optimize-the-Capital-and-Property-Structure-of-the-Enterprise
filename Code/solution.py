@@ -3,8 +3,7 @@ from Code.MiCommaLambda import MiCommaLambda
 from Code.MiPlusLambda import MiPlusLambda
 from Code.OnePlusOneMean import OnePlusOneMean
 from Code.OnePlusOneRandom import OnePlusOneRandom
-# from Code.Pymoo import Pymoo
-# from Code.PymooES import PymooES
+from Code.PymooES import PymooES
 from Code.utils.data_information import get_structure_data_statistics, get_change_data_statistics
 from Code.utils.data_visualization import visualize_all
 from Outliers import Outliers
@@ -52,15 +51,15 @@ la = 5
 factor = 8
 mi_plus_lambda = MiPlusLambda(evolution_platform, mi, la, factor)
 mi_comma_lambda = MiCommaLambda(evolution_platform, mi, la, factor)
-# pymoo_es = PymooES(evolution_platform, mean_changes, adjusted_std)
+pymoo_es = PymooES(evolution_platform, mean_changes, adjusted_std)
 
 # evolution_platform.add_evolution_strategy(one_plus_one_random)
 # evolution_platform.add_evolution_strategy(one_plus_one_mean)
-evolution_platform.add_evolution_strategy(mi_plus_lambda)
+# evolution_platform.add_evolution_strategy(mi_plus_lambda)
 # evolution_platform.add_evolution_strategy(mi_comma_lambda)
-# evolution_platform.add_evolution_strategy(pymoo_es)
+evolution_platform.add_evolution_strategy(pymoo_es)
 
-epochs = 10
+epochs = 100
 evolution_platform.start_evolution(epochs)
 
 evolution_platform.show_all()

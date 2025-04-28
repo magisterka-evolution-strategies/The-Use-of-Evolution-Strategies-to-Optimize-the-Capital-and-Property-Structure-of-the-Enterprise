@@ -18,18 +18,14 @@ class MiCommaLambda(EvolutionStrategyInterface):
         self.factor = factor
 
     def generate_random_gradient(self):
-        values = []
-        for _ in range(4):
-            values.append(random.uniform(-1, 1))
-        fifth_value = -sum(values)
-        if -1 <= fifth_value <= 1:
-            values.append(fifth_value)
-        else:
-            return self.generate_random_gradient()
-        return values
+        while True:
+            values = np.random.uniform(-1, 1, 4)
+            fifth_value = -np.sum(values)
+            if -1 <= fifth_value <= 1:
+                return np.append(values, fifth_value).tolist()
 
     def generate_best_company(self, company: Company):
-        best_company = None
+        best_company = company
         best_score = -math.inf
         for i in range(self.la):
             parents = random.sample(self.generated_companies, min(self.mi, len(self.generated_companies)))
@@ -60,15 +56,15 @@ class MiCommaLambda(EvolutionStrategyInterface):
             best_score = prediction
             best_company = child_company
 
-        return best_company
+        return best_company, best_score
 
     def generate_offspring(self):
         new_companies = []
         for i, company in enumerate(self.generated_companies):
-            while i + 1 != len(new_companies):
-                child_company = self.generate_best_company(company)
-                if child_company is None:
-                    child_company = company
-                new_companies.append(child_company)
+            best_company, best_score = self.generate_best_company(company)
+            if best_score != -math.inf:
+                best_company.value = company.value
+                best_company.change_company_value(best_score)
+            new_companies.append(best_company)
 
         self.generated_companies = new_companies

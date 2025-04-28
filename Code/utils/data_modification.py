@@ -75,3 +75,8 @@ def get_filtered_changes(data):
     filtered_data = final_data_np[valid_rows]
 
     return filtered_data.tolist()
+
+
+def adjust_std_based_on_mean(mean_changes, std_changes):
+    adjusted_std = np.where(abs(mean_changes) > 0.025, std_changes, 0.1)
+    return adjusted_std

@@ -59,7 +59,9 @@ pymoo_es = PymooES(evolution_platform, mean_changes, adjusted_std)
 # evolution_platform.add_evolution_strategy(mi_comma_lambda)
 evolution_platform.add_evolution_strategy(pymoo_es)
 
-epochs = 100
+epochs = 10
 evolution_platform.start_evolution(epochs)
 
 evolution_platform.show_all()
+
+evolution_platform.calculate_metrics()

@@ -65,3 +65,28 @@ class EvolutionPlatform:
             for i, evolution_strategy in enumerate(self.evolution_strategies):
                 evolution_strategy.generate_offspring()
                 print("Complete: {0}/{1}".format(i + 1, len(self.evolution_strategies)))
+
+    def calculate_metrics(self):
+        for evolution_strategy in self.evolution_strategies:
+            print(evolution_strategy.__class__)
+
+            value_metrics = evolution_strategy.calculate_value_increase_metrics()
+            print("Wzrost wartości przedsiębiorstwa:")
+            for key, value in value_metrics.items():
+                print(f"  {key}: {value:.4f}")
+            print("-"*80)
+
+            structure_metrics = evolution_strategy.calculate_structure_change_metrics()
+
+            print("Zagregowane zmiany struktury kapitałowej:")
+            for key, value in structure_metrics['overall_metrics'].items():
+                print(f"  {key}: {value:.4f}")
+
+            print("\nSzczegółowe zmiany dla poszczególnych składowych:")
+            for feature, stats in structure_metrics['per_feature_metrics'].items():
+                print(f"  {feature}:")
+                for stat_name, stat_value in stats.items():
+                    print(f"    {stat_name}: {stat_value:.4f}")
+                print("-"*40)
+
+            print("="*80)

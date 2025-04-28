@@ -34,6 +34,7 @@ def get_structure_data_statistics(data, outliers_model):
 
     return r1, r2
 
+
 def get_change_data_statistics(data):
     df = pd.DataFrame(data,
                       columns=["CompanyID", "Period", "MarketValue", "NonCurrentAssets", "CurrentAssets",

@@ -9,8 +9,8 @@ from Code.Pymoo import Pymoo
 
 
 class PymooES(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float, std_changes: Series | float):
-        super().__init__(evolution_platform)
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str, mean_changes: Series | float, std_changes: Series | float):
+        super().__init__(evolution_platform, name)
         self.mean_changes = mean_changes
         self.std_changes = std_changes
 

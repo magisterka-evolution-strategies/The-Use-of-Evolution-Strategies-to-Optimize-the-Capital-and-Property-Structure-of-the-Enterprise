@@ -10,8 +10,8 @@ from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneRandom(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform):
-        super().__init__(evolution_platform)
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str):
+        super().__init__(evolution_platform, name)
 
     def generate_random_gradient(self):
         while True:

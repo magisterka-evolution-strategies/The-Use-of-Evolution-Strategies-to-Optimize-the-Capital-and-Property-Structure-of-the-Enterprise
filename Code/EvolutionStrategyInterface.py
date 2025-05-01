@@ -8,11 +8,12 @@ from Code.Company import Company
 
 
 class EvolutionStrategyInterface:
-    def __init__(self, evolution_platform: EvolutionPlatform):
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str):
         self.evolution_platform = evolution_platform
         self.generated_companies: List[Company] = copy.deepcopy(evolution_platform.generated_companies)
         self.outliers_model = evolution_platform.outliers_model
         self.structure_change_model = evolution_platform.structure_change_model
+        self.name = name
 
     def check_generated_structures(self):
         for company in self.generated_companies:

@@ -29,11 +29,6 @@ class Pymoo(Problem):
 
             # raw_change = np.random.normal(loc=self.mean_changes, scale=self.std_changes)
             raw_change = np.random.normal(loc=self.mean_changes, scale=0.1)
-
-            if i == 9:
-                print(change)
-                print(raw_change)
-                print(change * raw_change)
             change = change * raw_change
 
             part1 = change[:5]
@@ -41,8 +36,6 @@ class Pymoo(Problem):
             part2 = change[5:]
             part2 -= np.mean(part2)
             change = np.concatenate([part1, part2])
-            if i == 9:
-                print(change)
 
             df = pd.DataFrame([change], columns=[
                 "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
@@ -79,6 +72,6 @@ class Pymoo(Problem):
         for company_index, (change, prediction) in best_changes.items():
             if prediction == -math.inf:
                 continue
-            print(company_index, prediction, change)
+            # print(company_index, prediction, change)
             self.base_companies[company_index].modify_structure(*change.ravel())
             self.base_companies[company_index].change_company_value(prediction)

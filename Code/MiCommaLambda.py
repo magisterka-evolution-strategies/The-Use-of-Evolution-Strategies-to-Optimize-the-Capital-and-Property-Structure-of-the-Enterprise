@@ -11,8 +11,8 @@ from Code.utils.calculations import only_positive_values
 
 
 class MiCommaLambda(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform, mi: int, la: int, factor: float):
-        super().__init__(evolution_platform)
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str, mi: int, la: int, factor: float):
+        super().__init__(evolution_platform, name)
         self.mi = mi
         self.la = la
         self.factor = factor

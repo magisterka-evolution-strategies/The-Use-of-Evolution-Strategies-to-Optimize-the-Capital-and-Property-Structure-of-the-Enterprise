@@ -2,6 +2,10 @@ import csv
 import os
 from typing import List
 
+import numpy as np
+from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+
 from Code.EvolutionStrategyInterface import EvolutionStrategyInterface
 from Company import Company
 from Code.utils.generate_company_structure import generate_structure_mean
@@ -15,6 +19,7 @@ class EvolutionPlatform:
         self.evolution_strategies: List[EvolutionStrategyInterface] = []
 
         self.data_path = "data/start_companies.csv"
+        self.pca = PCA(n_components=2, random_state=42)
 
     def generate_start_companies(self, number_of_companies, means):
         start_len = len(self.generated_companies)
@@ -35,7 +40,7 @@ class EvolutionPlatform:
             writer = csv.writer(file)
             writer.writerows(tmp)
 
-    def load_companies(self, number_of_companies):
+    def load_companies(self, number_of_companies, means):
         if not os.path.exists(self.data_path):
             return
         with open(self.data_path, "r") as file:
@@ -45,6 +50,11 @@ class EvolutionPlatform:
             for structure in tmp:
                 company = Company(*structure)
                 self.generated_companies.append(company)
+        self.generate_start_companies(number_of_companies, means)
+
+    def fit_visualization(self):
+        data = np.array([company.to_array() for company in self.generated_companies])
+        self.pca.fit_transform(data)
 
     def show_structures(self):
         for company in self.generated_companies:
@@ -53,7 +63,7 @@ class EvolutionPlatform:
 
     def show_all(self):
         for evolution_strategy in self.evolution_strategies:
-            print(evolution_strategy.__class__)
+            print(evolution_strategy.name)
             evolution_strategy.check_generated_structures()
 
     def add_evolution_strategy(self, evolution_strategy: EvolutionStrategyInterface):
@@ -68,13 +78,13 @@ class EvolutionPlatform:
 
     def calculate_metrics(self):
         for evolution_strategy in self.evolution_strategies:
-            print(evolution_strategy.__class__)
+            print(evolution_strategy.name)
 
             value_metrics = evolution_strategy.calculate_value_increase_metrics()
             print("Wzrost wartości przedsiębiorstwa:")
             for key, value in value_metrics.items():
                 print(f"  {key}: {value:.4f}")
-            print("-"*80)
+            print("-" * 80)
 
             structure_metrics = evolution_strategy.calculate_structure_change_metrics()
 
@@ -87,6 +97,52 @@ class EvolutionPlatform:
                 print(f"  {feature}:")
                 for stat_name, stat_value in stats.items():
                     print(f"    {stat_name}: {stat_value:.4f}")
-                print("-"*40)
+                print("-" * 40)
 
-            print("="*80)
+            print("=" * 80)
+
+    def draw_single_structures(self, es_structures, basic_structures, title, color):
+        fig = plt.figure(figsize=(10, 7))
+        ax = fig.add_subplot(111)
+
+        es_structures_2d = self.pca.transform(es_structures)
+        basic_structures_2d = self.pca.transform(basic_structures)
+
+        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2, alpha=0.7, label="Bazowe")
+        ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], c=color, edgecolors=color, s=2, alpha=0.7, label=title)
+
+        plt.xlabel("Wymiar 1 (PCA)")
+        plt.ylabel("Wymiar 2 (PCA)")
+        plt.title("Wizualizacja struktur kapitałowych przedsiębiorstw")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def draw_total_structures(self, basic_structures, total_structures):
+        fig = plt.figure(figsize=(10, 7))
+        ax = fig.add_subplot(111)
+
+        basic_structures_2d = self.pca.transform(basic_structures)
+        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2, alpha=0.7, label="Bazowe")
+
+        for es_structures, label in total_structures:
+            es_structures_2d = self.pca.transform(es_structures)
+            ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], s=2, alpha=0.7, label=label)
+
+        plt.xlabel("Wymiar 1 (PCA)")
+        plt.ylabel("Wymiar 2 (PCA)")
+        plt.title("Ogólna wizualizacja struktur kapitałowych przedsiębiorstw")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def visualize_structure_changes(self):
+        basic_structures = np.array([company.to_array() for company in self.generated_companies])
+        total_structures = []
+        for evolution_strategy in self.evolution_strategies:
+            es_structures = np.array([company.to_array() for company in evolution_strategy.generated_companies])
+            total_structures.append((es_structures, evolution_strategy.name))
+            self.draw_single_structures(es_structures, basic_structures, evolution_strategy.name, '#ff0000')
+
+        self.draw_total_structures(basic_structures, total_structures)
+

@@ -11,9 +11,9 @@ from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneMean(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float,
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str, mean_changes: Series | float,
                  std_changes: Series | float):
-        super().__init__(evolution_platform)
+        super().__init__(evolution_platform, name)
         self.mean_assets = mean_changes[:5]
         self.mean_liabilities = mean_changes[5:]
         self.std_assets = std_changes[:5]

@@ -14,6 +14,7 @@ class EvolutionStrategyInterface:
         self.outliers_model = evolution_platform.outliers_model
         self.structure_change_model = evolution_platform.structure_change_model
         self.name = name
+        self.positive_changes_made = 0
 
     def check_generated_structures(self):
         for company in self.generated_companies:
@@ -44,21 +45,23 @@ class EvolutionStrategyInterface:
             final_structure = company.to_dataframe()
 
             change = (final_structure.values - initial_structure.values).flatten()
-            change_abs = np.abs(change)
 
-            all_changes.append(change_abs)
+            all_changes.append(change)
+            # change_abs = np.abs(change)
+            #
+            # all_changes.append(change_abs)
 
         all_changes = np.array(all_changes)
 
-        mean_change_per_company = np.mean(all_changes, axis=1)
+        # mean_change_per_company = np.mean(all_changes, axis=1)
 
-        overall_metrics = {
-            "mean_structure_change_percentage": np.mean(mean_change_per_company),
-            "std_structure_change_percentage": np.std(mean_change_per_company),
-            "median_structure_change_percentage": np.median(mean_change_per_company),
-            "min_structure_change_percentage": np.min(mean_change_per_company),
-            "max_structure_change_percentage": np.max(mean_change_per_company),
-        }
+        # overall_metrics = {
+        #     "mean_structure_change_percentage": np.mean(mean_change_per_company),
+        #     "std_structure_change_percentage": np.std(mean_change_per_company),
+        #     "median_structure_change_percentage": np.median(mean_change_per_company),
+        #     "min_structure_change_percentage": np.min(mean_change_per_company),
+        #     "max_structure_change_percentage": np.max(mean_change_per_company),
+        # }
 
         columns = [
             "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
@@ -81,7 +84,7 @@ class EvolutionStrategyInterface:
             }
 
         return {
-            "overall_metrics": overall_metrics,
+            # "overall_metrics": overall_metrics,
             "per_feature_metrics": per_feature_metrics
         }
 

@@ -39,7 +39,9 @@ class MiCommaLambda(EvolutionStrategyInterface):
                                        "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"])
             rotation = random.choice([-1, 1])
             mean = df.mean()
+            mutation_strength = random.randint(1, 3)
             mutation = np.concatenate([self.generate_random_gradient(), self.generate_random_gradient()])
+            mutation *= mutation_strength
             final_change = mean + mutation
             change = rotation * (company.to_dataframe() - final_change) / self.factor
             new_company_values = [x + y for x, y in
@@ -63,6 +65,8 @@ class MiCommaLambda(EvolutionStrategyInterface):
         for i, company in enumerate(self.generated_companies):
             best_company, best_score = self.generate_best_company(company)
             if best_score != -math.inf:
+                if best_score > 0:
+                    self.positive_changes_made += 1
                 best_company.value = company.value
                 best_company.change_company_value(best_score)
             new_companies.append(best_company)

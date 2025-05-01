@@ -63,6 +63,11 @@ class EvolutionPlatform:
 
     def show_all(self):
         for evolution_strategy in self.evolution_strategies:
+            print(evolution_strategy.name, evolution_strategy.positive_changes_made)
+            evolution_strategy.check_generated_structures()
+
+    def show_all(self):
+        for evolution_strategy in self.evolution_strategies:
             print(evolution_strategy.name)
             evolution_strategy.check_generated_structures()
 
@@ -76,30 +81,82 @@ class EvolutionPlatform:
                 evolution_strategy.generate_offspring()
                 print("Complete: {0}/{1}".format(i + 1, len(self.evolution_strategies)))
 
-    def calculate_metrics(self):
-        for evolution_strategy in self.evolution_strategies:
-            print(evolution_strategy.name)
+    def plot_structure_changes(self, structure_metrics_per_strategy):
+        features = [
+            "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
+            "CalledUpCapital", "OwnShares", "EquityShareholdersOfTheParent",
+            "NonControllingInterests", "NonCurrentLiabilities", "CurrentLiabilities",
+            "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"
+        ]
 
-            value_metrics = evolution_strategy.calculate_value_increase_metrics()
+        for feature_name in features:
+            strategies = []
+            means = []
+            stds = []
+
+            for strategy_name, metrics in structure_metrics_per_strategy.items():
+                per_feature = metrics["structure_metrics"]["per_feature_metrics"]
+                if feature_name in per_feature:
+                    strategies.append(strategy_name)
+                    means.append(per_feature[feature_name]["mean_change"])
+                    stds.append(per_feature[feature_name]["std_change"])
+
+            if not strategies:
+                continue  # Skip if no data for this feature
+
+            plt.figure(figsize=(10, 6))
+            plt.bar(strategies, means, yerr=stds, capsize=5, color="skyblue", edgecolor="black")
+            plt.ylabel("Średnia zmiana")
+            plt.title(f"Porównanie zmian: {feature_name}")
+            plt.grid(axis="y", linestyle="--", alpha=0.7)
+            plt.xticks(rotation=45, ha='right')
+            plt.tight_layout()
+            plt.show()
+
+    def display_metrics(self, metrics):
+        for strategy_name, es_metrics in metrics.items():
+            print(f"\nStrategia: {strategy_name}")
+            print("=" * 80)
+
+            value_metrics = es_metrics["value_metrics"]
+            structure_metrics = es_metrics["structure_metrics"]
+            positive_changes = es_metrics["positive_changes"]
+
+            print("Ilość pozytywnych zmian:", positive_changes)
+            print("-" * 80)
+
             print("Wzrost wartości przedsiębiorstwa:")
             for key, value in value_metrics.items():
                 print(f"  {key}: {value:.4f}")
             print("-" * 80)
 
-            structure_metrics = evolution_strategy.calculate_structure_change_metrics()
+            # print("Zagregowane zmiany struktury kapitałowej:")
+            # for key, value in structure_metrics["overall_metrics"].items():
+            #     print(f"  {key}: {value:.4f}")
 
-            print("Zagregowane zmiany struktury kapitałowej:")
-            for key, value in structure_metrics['overall_metrics'].items():
-                print(f"  {key}: {value:.4f}")
-
-            print("\nSzczegółowe zmiany dla poszczególnych składowych:")
-            for feature, stats in structure_metrics['per_feature_metrics'].items():
+            print("Szczegółowe zmiany dla poszczególnych składowych:")
+            for feature, stats in structure_metrics["per_feature_metrics"].items():
                 print(f"  {feature}:")
                 for stat_name, stat_value in stats.items():
                     print(f"    {stat_name}: {stat_value:.4f}")
                 print("-" * 40)
 
             print("=" * 80)
+
+    def calculate_metrics(self):
+        metrics = {}
+        for evolution_strategy in self.evolution_strategies:
+            value_metrics = evolution_strategy.calculate_value_increase_metrics()
+
+            structure_metrics = evolution_strategy.calculate_structure_change_metrics()
+            es_metrics = {
+                "value_metrics": value_metrics,
+                "structure_metrics": structure_metrics,
+                "positive_changes": evolution_strategy.positive_changes_made
+            }
+            metrics[evolution_strategy.name] = es_metrics
+
+        return metrics
 
     def draw_single_structures(self, es_structures, basic_structures, title, color):
         fig = plt.figure(figsize=(10, 7))
@@ -108,8 +165,10 @@ class EvolutionPlatform:
         es_structures_2d = self.pca.transform(es_structures)
         basic_structures_2d = self.pca.transform(basic_structures)
 
-        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2, alpha=0.7, label="Bazowe")
-        ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], c=color, edgecolors=color, s=2, alpha=0.7, label=title)
+        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2,
+                   alpha=0.7, label="Bazowe")
+        ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], c=color, edgecolors=color, s=2, alpha=0.7,
+                   label=title)
 
         plt.xlabel("Wymiar 1 (PCA)")
         plt.ylabel("Wymiar 2 (PCA)")
@@ -123,7 +182,8 @@ class EvolutionPlatform:
         ax = fig.add_subplot(111)
 
         basic_structures_2d = self.pca.transform(basic_structures)
-        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2, alpha=0.7, label="Bazowe")
+        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2,
+                   alpha=0.7, label="Bazowe")
 
         for es_structures, label in total_structures:
             es_structures_2d = self.pca.transform(es_structures)
@@ -142,7 +202,6 @@ class EvolutionPlatform:
         for evolution_strategy in self.evolution_strategies:
             es_structures = np.array([company.to_array() for company in evolution_strategy.generated_companies])
             total_structures.append((es_structures, evolution_strategy.name))
-            self.draw_single_structures(es_structures, basic_structures, evolution_strategy.name, '#ff0000')
+            self.draw_single_structures(es_structures, basic_structures, evolution_strategy.name, "#ff0000")
 
         self.draw_total_structures(basic_structures, total_structures)
-

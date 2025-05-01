@@ -69,9 +69,14 @@ class Pymoo(Problem):
                     continue
                 best_changes[company_index] = (change, prediction)
 
+        positive_changes = 0
         for company_index, (change, prediction) in best_changes.items():
             if prediction == -math.inf:
                 continue
             # print(company_index, prediction, change)
+            if prediction > 0:
+                positive_changes += 1
             self.base_companies[company_index].modify_structure(*change.ravel())
             self.base_companies[company_index].change_company_value(prediction)
+
+        return positive_changes

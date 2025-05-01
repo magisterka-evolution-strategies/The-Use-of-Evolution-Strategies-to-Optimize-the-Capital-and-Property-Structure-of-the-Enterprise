@@ -75,6 +75,7 @@ class OnePlusOneMean(EvolutionStrategyInterface):
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 new_companies.append(company)
                 continue
+            self.positive_changes_made += 1
             child_company.value = company.value
             child_company.change_company_value(prediction)
             new_companies.append(child_company)

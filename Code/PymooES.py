@@ -25,5 +25,6 @@ class PymooES(EvolutionStrategyInterface):
                  termination,
                  verbose=False)
 
-        problem.apply_best_changes()
+        positive_changes = problem.apply_best_changes()
+        self.positive_changes_made += positive_changes
 

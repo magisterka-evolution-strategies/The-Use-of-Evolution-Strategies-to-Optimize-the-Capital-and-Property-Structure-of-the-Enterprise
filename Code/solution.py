@@ -53,18 +53,20 @@ mi_comma_lambda = MiCommaLambda(evolution_platform, r"$\mu$,$\lambda$", mi, la, 
 pymoo_es = PymooES(evolution_platform, "Pymoo", mean_changes, adjusted_std)
 
 evolution_platform.add_evolution_strategy(one_plus_one_random)
-# evolution_platform.add_evolution_strategy(one_plus_one_mean)
-# evolution_platform.add_evolution_strategy(mi_plus_lambda)
-# evolution_platform.add_evolution_strategy(mi_comma_lambda)
-# evolution_platform.add_evolution_strategy(pymoo_es)
+evolution_platform.add_evolution_strategy(one_plus_one_mean)
+evolution_platform.add_evolution_strategy(mi_plus_lambda)
+evolution_platform.add_evolution_strategy(mi_comma_lambda)
+evolution_platform.add_evolution_strategy(pymoo_es)
 
-epochs = 5
+epochs = 20
 evolution_platform.start_evolution(epochs)
 
 evolution_platform.show_all()
 
 metrics = evolution_platform.calculate_metrics()
-# evolution_platform.display_metrics(metrics)
+evolution_platform.display_metrics(metrics)
 # evolution_platform.plot_structure_changes(metrics)
 #
 # evolution_platform.visualize_structure_changes()
+
+evolution_platform.plot_value_vs_time(metrics)

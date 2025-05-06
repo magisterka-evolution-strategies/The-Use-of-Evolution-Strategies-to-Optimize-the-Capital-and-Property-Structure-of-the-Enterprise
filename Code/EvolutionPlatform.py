@@ -120,9 +120,15 @@ class EvolutionPlatform:
 
             value_metrics = es_metrics["value_metrics"]
             structure_metrics = es_metrics["structure_metrics"]
+            time_metrics = es_metrics["time_metrics"]
             positive_changes = es_metrics["positive_changes"]
 
             print("Ilość pozytywnych zmian:", positive_changes)
+            print("-" * 80)
+
+            print("Czasowe statystyki:")
+            for key, value in time_metrics.items():
+                print(f"  {key}: {value:.4f}")
             print("-" * 80)
 
             print("Wzrost wartości przedsiębiorstwa:")
@@ -207,3 +213,35 @@ class EvolutionPlatform:
             self.draw_single_structures(es_structures, basic_structures, evolution_strategy.name, "#ff0000")
 
         self.draw_total_structures(basic_structures, total_structures)
+
+    def plot_value_vs_time(self, metrics):
+        strategies = []
+        efficiencies = []
+
+        for strategy_name, data in metrics.items():
+            mean_increase = data["value_metrics"]["mean_increase_percentage"]
+            total_time = data["time_metrics"]["sum_time"]
+
+            if total_time > 0:
+                efficiency = mean_increase / total_time
+            else:
+                efficiency = 0  # avoid division by zero
+
+            strategies.append(strategy_name)
+            efficiencies.append(efficiency)
+
+        plt.figure(figsize=(10, 6))
+        bars = plt.bar(strategies, efficiencies, color="mediumseagreen", edgecolor="black")
+        plt.ylabel("Efektywność [% wzrostu / s]")
+        plt.title("Efektywność strategii ewolucyjnych")
+        plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+        for bar in bars:
+            height = bar.get_height()
+            plt.annotate(f'{height:.2f}',
+                         xy=(bar.get_x() + bar.get_width() / 2, height),
+                         xytext=(0, 3), textcoords="offset points",
+                         ha='center', va='bottom', fontsize=9)
+
+        plt.tight_layout()
+        plt.show()

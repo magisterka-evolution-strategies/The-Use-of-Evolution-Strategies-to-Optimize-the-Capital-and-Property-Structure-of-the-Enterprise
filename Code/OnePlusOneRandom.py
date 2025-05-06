@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,7 @@ class OnePlusOneRandom(EvolutionStrategyInterface):
                 return np.append(values, fifth_value).tolist()
 
     def generate_offspring(self):
+        start_time = time.process_time()
         new_companies = []
         for i, company in enumerate(self.generated_companies):
             gradient_assets = self.generate_random_gradient()
@@ -52,3 +54,5 @@ class OnePlusOneRandom(EvolutionStrategyInterface):
             new_companies.append(child_company)
 
         self.generated_companies = new_companies
+        end_time = time.process_time()
+        self.evaluation_times.append(end_time - start_time)

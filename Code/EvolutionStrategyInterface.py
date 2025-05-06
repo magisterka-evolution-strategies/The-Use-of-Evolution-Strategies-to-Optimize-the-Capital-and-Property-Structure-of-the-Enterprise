@@ -15,6 +15,7 @@ class EvolutionStrategyInterface:
         self.structure_change_model = evolution_platform.structure_change_model
         self.name = name
         self.positive_changes_made = 0
+        self.evaluation_times = []
 
     def check_generated_structures(self):
         for company in self.generated_companies:
@@ -87,6 +88,16 @@ class EvolutionStrategyInterface:
             # "overall_metrics": overall_metrics,
             "per_feature_metrics": per_feature_metrics
         }
+
+    def calculate_time_metrics(self):
+        values = np.array(self.evaluation_times)
+
+        metrics = {
+            "mean_time": np.mean(values),
+            "sum_time": np.sum(values)
+        }
+
+        return metrics
 
     def generate_offspring(self):
         pass

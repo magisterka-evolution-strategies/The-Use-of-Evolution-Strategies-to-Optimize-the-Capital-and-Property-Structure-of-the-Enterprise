@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 import pandas as pd
@@ -60,6 +61,7 @@ class MiPlusLambda(EvolutionStrategyInterface):
         return best_company, best_score
 
     def generate_offspring(self):
+        start_time = time.process_time()
         new_companies = []
         for i, company in enumerate(self.generated_companies):
             best_company, best_score = self.generate_best_company(company)
@@ -70,3 +72,5 @@ class MiPlusLambda(EvolutionStrategyInterface):
             new_companies.append(best_company)
 
         self.generated_companies = new_companies
+        end_time = time.process_time()
+        self.evaluation_times.append(end_time - start_time)

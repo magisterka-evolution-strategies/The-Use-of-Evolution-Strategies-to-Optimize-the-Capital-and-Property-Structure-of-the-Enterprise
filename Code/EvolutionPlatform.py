@@ -147,11 +147,13 @@ class EvolutionPlatform:
         metrics = {}
         for evolution_strategy in self.evolution_strategies:
             value_metrics = evolution_strategy.calculate_value_increase_metrics()
-
             structure_metrics = evolution_strategy.calculate_structure_change_metrics()
+            time_metrics = evolution_strategy.calculate_time_metrics()
+
             es_metrics = {
                 "value_metrics": value_metrics,
                 "structure_metrics": structure_metrics,
+                "time_metrics": time_metrics,
                 "positive_changes": evolution_strategy.positive_changes_made
             }
             metrics[evolution_strategy.name] = es_metrics

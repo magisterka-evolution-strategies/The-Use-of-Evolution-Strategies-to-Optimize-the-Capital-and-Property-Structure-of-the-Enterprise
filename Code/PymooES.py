@@ -1,3 +1,5 @@
+import time
+
 from pandas import Series
 from pymoo.algorithms.soo.nonconvex.es import ES
 from pymoo.optimize import minimize
@@ -15,6 +17,7 @@ class PymooES(EvolutionStrategyInterface):
         self.std_changes = std_changes
 
     def generate_offspring(self):
+        start_time = time.process_time()
         problem = Pymoo(self.generated_companies, self.mean_changes, self.std_changes, self.structure_change_model, self.outliers_model)
 
         algorithm = ES(pop_size=len(self.generated_companies), offspring_size=len(self.generated_companies), sigma=0.5)
@@ -27,4 +30,6 @@ class PymooES(EvolutionStrategyInterface):
 
         positive_changes = problem.apply_best_changes()
         self.positive_changes_made += positive_changes
+        end_time = time.process_time()
+        self.evaluation_times.append(end_time - start_time)
 

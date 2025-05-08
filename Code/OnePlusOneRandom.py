@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 import pandas as pd
@@ -10,8 +11,8 @@ from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneRandom(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform):
-        super().__init__(evolution_platform)
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str):
+        super().__init__(evolution_platform, name)
 
     def generate_random_gradient(self):
         while True:
@@ -21,6 +22,7 @@ class OnePlusOneRandom(EvolutionStrategyInterface):
                 return np.append(values, fifth_value).tolist()
 
     def generate_offspring(self):
+        start_time = time.process_time()
         new_companies = []
         for i, company in enumerate(self.generated_companies):
             gradient_assets = self.generate_random_gradient()
@@ -46,8 +48,11 @@ class OnePlusOneRandom(EvolutionStrategyInterface):
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 new_companies.append(company)
                 continue
+            self.positive_changes_made += 1
             child_company.value = company.value
             child_company.change_company_value(prediction)
             new_companies.append(child_company)
 
         self.generated_companies = new_companies
+        end_time = time.process_time()
+        self.evaluation_times.append(end_time - start_time)

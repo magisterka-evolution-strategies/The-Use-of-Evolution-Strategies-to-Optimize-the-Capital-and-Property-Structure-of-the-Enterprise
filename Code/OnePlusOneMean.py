@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 import pandas as pd
@@ -11,9 +12,9 @@ from Code.utils.calculations import only_positive_values
 
 
 class OnePlusOneMean(EvolutionStrategyInterface):
-    def __init__(self, evolution_platform: EvolutionPlatform, mean_changes: Series | float,
+    def __init__(self, evolution_platform: EvolutionPlatform, name: str, mean_changes: Series | float,
                  std_changes: Series | float):
-        super().__init__(evolution_platform)
+        super().__init__(evolution_platform, name)
         self.mean_assets = mean_changes[:5]
         self.mean_liabilities = mean_changes[5:]
         self.std_assets = std_changes[:5]
@@ -49,6 +50,7 @@ class OnePlusOneMean(EvolutionStrategyInterface):
         return gradients.tolist()
 
     def generate_offspring(self):
+        start_time = time.process_time()
         new_companies = []
         for i, company in enumerate(self.generated_companies):
             gradient_assets = self.generate_assets_gradient()
@@ -75,8 +77,11 @@ class OnePlusOneMean(EvolutionStrategyInterface):
             if self.outliers_model.predict(child_company.to_dataframe())[0] == -1:
                 new_companies.append(company)
                 continue
+            self.positive_changes_made += 1
             child_company.value = company.value
             child_company.change_company_value(prediction)
             new_companies.append(child_company)
 
         self.generated_companies = new_companies
+        end_time = time.process_time()
+        self.evaluation_times.append(end_time - start_time)

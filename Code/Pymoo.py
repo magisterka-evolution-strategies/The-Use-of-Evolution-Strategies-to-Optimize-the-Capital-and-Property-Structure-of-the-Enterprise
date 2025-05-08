@@ -10,12 +10,12 @@ from Code.utils.calculations import only_positive_values
 
 
 class Pymoo(Problem):
-    def __init__(self, companies, mean_changes: Series | float, std_changes: Series | float, ml_model, outliers_model):
+    def __init__(self, companies, mean_changes: Series | float, std_changes: Series | float, structure_change_model, outliers_model):
         super().__init__(n_var=10, n_obj=1, xl=-1, xu=1)
         self.base_companies = companies
         self.mean_changes = mean_changes
         self.std_changes = std_changes
-        self.ml_model = ml_model
+        self.structure_change_model = structure_change_model
         self.outliers_model = outliers_model
         self.changes_to_apply = []
 
@@ -27,8 +27,8 @@ class Pymoo(Problem):
             company_index = i % len(self.base_companies)
             base_company = self.base_companies[company_index]
 
-            raw_change = np.random.normal(loc=self.mean_changes, scale=self.std_changes)
-
+            # raw_change = np.random.normal(loc=self.mean_changes, scale=self.std_changes)
+            raw_change = np.random.normal(loc=self.mean_changes, scale=0.1)
             change = change * raw_change
 
             part1 = change[:5]
@@ -44,7 +44,7 @@ class Pymoo(Problem):
                 "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"
             ])
 
-            prediction = self.ml_model.predict(df, verbose=None)[0][0]
+            prediction = self.structure_change_model.predict(df, verbose=None)[0][0]
             predicted_value = base_company.value * (100 + prediction) / 100
 
             fitness.append(-predicted_value)
@@ -69,9 +69,14 @@ class Pymoo(Problem):
                     continue
                 best_changes[company_index] = (change, prediction)
 
+        positive_changes = 0
         for company_index, (change, prediction) in best_changes.items():
             if prediction == -math.inf:
                 continue
-            print(company_index, prediction, change)
+            # print(company_index, prediction, change)
+            if prediction > 0:
+                positive_changes += 1
             self.base_companies[company_index].modify_structure(*change.ravel())
             self.base_companies[company_index].change_company_value(prediction)
+
+        return positive_changes

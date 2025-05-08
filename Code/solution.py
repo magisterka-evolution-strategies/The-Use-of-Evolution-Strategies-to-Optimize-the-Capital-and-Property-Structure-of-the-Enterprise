@@ -5,7 +5,6 @@ from Code.OnePlusOneMean import OnePlusOneMean
 from Code.OnePlusOneRandom import OnePlusOneRandom
 from Code.PymooES import PymooES
 from Code.utils.data_information import get_structure_data_statistics, get_change_data_statistics
-from Code.utils.data_visualization import visualize_all
 from Outliers import Outliers
 from StructureChange import StructureChange
 from Code.utils.retrieve_data import get_raw_sql_data
@@ -38,28 +37,36 @@ structure_change_model = structure_change.get_model()
 
 evolution_platform = EvolutionPlatform(isolation_forest, structure_change_model)
 
-number_of_companies = 10
-evolution_platform.load_companies(number_of_companies)
-evolution_platform.generate_start_companies(number_of_companies, mean_structures)
+number_of_companies = 50
+evolution_platform.load_companies(number_of_companies, mean_structures)
+evolution_platform.fit_visualization()
 
 evolution_platform.show_structures()
 
-one_plus_one_random = OnePlusOneRandom(evolution_platform)
-one_plus_one_mean = OnePlusOneMean(evolution_platform, mean_changes, adjusted_std)
+one_plus_one_random = OnePlusOneRandom(evolution_platform, "1+1 losowe")
+one_plus_one_mean = OnePlusOneMean(evolution_platform, "1+1 rozkład normalny", mean_changes, adjusted_std)
 mi = 10
 la = 5
 factor = 8
-mi_plus_lambda = MiPlusLambda(evolution_platform, mi, la, factor)
-mi_comma_lambda = MiCommaLambda(evolution_platform, mi, la, factor)
-pymoo_es = PymooES(evolution_platform, mean_changes, adjusted_std)
+mi_plus_lambda = MiPlusLambda(evolution_platform, r"$\mu$+$\lambda$", mi, la, factor)
+mi_comma_lambda = MiCommaLambda(evolution_platform, r"$\mu$,$\lambda$", mi, la, factor)
+pymoo_es = PymooES(evolution_platform, "Pymoo", mean_changes, adjusted_std)
 
-# evolution_platform.add_evolution_strategy(one_plus_one_random)
-# evolution_platform.add_evolution_strategy(one_plus_one_mean)
-# evolution_platform.add_evolution_strategy(mi_plus_lambda)
-# evolution_platform.add_evolution_strategy(mi_comma_lambda)
+evolution_platform.add_evolution_strategy(one_plus_one_random)
+evolution_platform.add_evolution_strategy(one_plus_one_mean)
+evolution_platform.add_evolution_strategy(mi_plus_lambda)
+evolution_platform.add_evolution_strategy(mi_comma_lambda)
 evolution_platform.add_evolution_strategy(pymoo_es)
 
-epochs = 100
+epochs = 20
 evolution_platform.start_evolution(epochs)
 
 evolution_platform.show_all()
+
+metrics = evolution_platform.calculate_metrics()
+evolution_platform.display_metrics(metrics)
+# evolution_platform.plot_structure_changes(metrics)
+#
+# evolution_platform.visualize_structure_changes()
+
+evolution_platform.plot_value_vs_time(metrics)

@@ -22,23 +22,19 @@ class EvolutionPlatform:
         self.pca = PCA(n_components=2, random_state=42)
 
     def generate_start_companies(self, number_of_companies, means):
-        start_len = len(self.generated_companies)
-
         while len(self.generated_companies) < number_of_companies:
-            assets = generate_structure_mean(means[:5], 10)
-            liabilities = generate_structure_mean(means[5:], 10)
+            assets = generate_structure_mean(means[:5], 15)
+            liabilities = generate_structure_mean(means[5:], 15)
             company = Company(*assets, *liabilities)
             if self.outliers_model.predict(company.to_dataframe())[0] == -1:
                 continue
             self.generated_companies.append(company)
+            with open(self.data_path, "a", newline="") as file:
+                tmp = list([company.to_array()])
+                writer = csv.writer(file)
+                writer.writerows(tmp)
             print("Company structure generated. Total structures:", len(self.generated_companies))
 
-        if start_len >= number_of_companies:
-            return
-        with open(self.data_path, "a", newline="") as file:
-            tmp = list(map(lambda x: x.to_array(), self.generated_companies[start_len:]))
-            writer = csv.writer(file)
-            writer.writerows(tmp)
 
     def load_companies(self, number_of_companies, means):
         if not os.path.exists(self.data_path):
@@ -80,38 +76,6 @@ class EvolutionPlatform:
             for i, evolution_strategy in enumerate(self.evolution_strategies):
                 evolution_strategy.generate_offspring()
                 print("Complete: {0}/{1}".format(i + 1, len(self.evolution_strategies)))
-
-    def plot_structure_changes(self, structure_metrics_per_strategy):
-        features = [
-            "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
-            "CalledUpCapital", "OwnShares", "EquityShareholdersOfTheParent",
-            "NonControllingInterests", "NonCurrentLiabilities", "CurrentLiabilities",
-            "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"
-        ]
-
-        for feature_name in features:
-            strategies = []
-            means = []
-            stds = []
-
-            for strategy_name, metrics in structure_metrics_per_strategy.items():
-                per_feature = metrics["structure_metrics"]["per_feature_metrics"]
-                if feature_name in per_feature:
-                    strategies.append(strategy_name)
-                    means.append(per_feature[feature_name]["mean_change"])
-                    stds.append(per_feature[feature_name]["std_change"])
-
-            if not strategies:
-                continue  # Skip if no data for this feature
-
-            plt.figure(figsize=(10, 6))
-            plt.bar(strategies, means, yerr=stds, capsize=5, color="skyblue", edgecolor="black")
-            plt.ylabel("Średnia zmiana")
-            plt.title(f"Porównanie zmian: {feature_name}")
-            plt.grid(axis="y", linestyle="--", alpha=0.7)
-            plt.xticks(rotation=45, ha='right')
-            plt.tight_layout()
-            plt.show()
 
     def display_metrics(self, metrics):
         for strategy_name, es_metrics in metrics.items():
@@ -166,6 +130,43 @@ class EvolutionPlatform:
 
         return metrics
 
+    def plot_structure_changes(self, structure_metrics_per_strategy):
+        features = [
+            "NonCurrentAssets", "CurrentAssets", "AssetsHeldForSaleAndDiscountinuingOperations",
+            "CalledUpCapital", "OwnShares", "EquityShareholdersOfTheParent",
+            "NonControllingInterests", "NonCurrentLiabilities", "CurrentLiabilities",
+            "LiabilitiesRelatedToAssetsHeldForSaleAndDiscontinuedOperations"
+        ]
+
+        for feature_name in features:
+            strategies = []
+            means = []
+            stds = []
+            medians = []
+
+            for strategy_name, metrics in structure_metrics_per_strategy.items():
+                per_feature = metrics["structure_metrics"]["per_feature_metrics"]
+                if feature_name in per_feature:
+                    strategies.append(strategy_name)
+                    means.append(per_feature[feature_name]["mean_change"])
+                    stds.append(per_feature[feature_name]["std_change"])
+                    medians.append(per_feature[feature_name]["median_change"])
+
+            if not strategies:
+                continue  # Skip if no data for this feature
+
+            plt.figure(figsize=(10, 6))
+            plt.bar(strategies, means, yerr=stds, capsize=5, color="skyblue", edgecolor="black")
+            x = np.arange(len(strategies))
+            plt.scatter(x, medians, color="red", marker="D", label="Mediana zmian")
+            plt.ylabel("Średnia zmiana")
+            plt.title(f"Porównanie zmian: {feature_name}")
+            plt.grid(axis="y", linestyle="--", alpha=0.7)
+            plt.xticks(rotation=45, ha='right')
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
+
     def draw_single_structures(self, es_structures, basic_structures, title, color):
         fig = plt.figure(figsize=(10, 7))
         ax = fig.add_subplot(111)
@@ -173,9 +174,9 @@ class EvolutionPlatform:
         es_structures_2d = self.pca.transform(es_structures)
         basic_structures_2d = self.pca.transform(basic_structures)
 
-        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=2,
+        ax.scatter(basic_structures_2d[:, 0], basic_structures_2d[:, 1], c="#000000", edgecolors="#000000", s=4,
                    alpha=0.7, label="Bazowe")
-        ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], c=color, edgecolors=color, s=2, alpha=0.7,
+        ax.scatter(es_structures_2d[:, 0], es_structures_2d[:, 1], c=color, edgecolors=color, s=4, alpha=0.7,
                    label=title)
 
         plt.xlabel("Wymiar 1 (PCA)")
@@ -225,7 +226,7 @@ class EvolutionPlatform:
             if total_time > 0:
                 efficiency = mean_increase / total_time
             else:
-                efficiency = 0  # avoid division by zero
+                efficiency = 0
 
             strategies.append(strategy_name)
             efficiencies.append(efficiency)
@@ -235,13 +236,77 @@ class EvolutionPlatform:
         plt.ylabel("Efektywność [% wzrostu / s]")
         plt.title("Efektywność strategii ewolucyjnych")
         plt.grid(axis='y', linestyle='--', alpha=0.6)
+        plt.xticks(rotation=45)
 
         for bar in bars:
             height = bar.get_height()
             plt.annotate(f'{height:.2f}',
-                         xy=(bar.get_x() + bar.get_width() / 2, height),
-                         xytext=(0, 3), textcoords="offset points",
-                         ha='center', va='bottom', fontsize=9)
+                         xy=(bar.get_x() + bar.get_width() / 2.0, height), ha='center', va='bottom')
+
+        plt.tight_layout()
+        plt.show()
+
+    def plot_time_metrics(self, metrics):
+        strategy_names = []
+        total_times = []
+
+        for strategy_name, strategy_metrics in metrics.items():
+            strategy_names.append(strategy_name)
+            total_times.append(strategy_metrics["time_metrics"]["sum_time"])
+
+        plt.figure(figsize=(10, 6))
+        bars = plt.bar(strategy_names, total_times, color="lightcoral", edgecolor="black")
+        plt.ylabel("Czas całkowity [s]")
+        plt.title("Porównanie całkowitego czasu działania strategii")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        plt.xticks(rotation=45)
+
+        # Add time labels on top of each bar
+        for bar, time in zip(bars, total_times):
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2.0, yval, f"{yval:.2f}", ha='center', va='bottom')
+
+        plt.tight_layout()
+        plt.show()
+
+    def plot_value_change_comparison(self, metrics):
+        strategy_names = []
+        means = []
+        for strategy_name, strategy_metrics in metrics.items():
+            strategy_names.append(strategy_name)
+            means.append(strategy_metrics["value_metrics"]["mean_increase_percentage"])
+
+        plt.figure(figsize=(10, 6))
+        bars = plt.bar(strategy_names, means, color="lightcoral", edgecolor="black")
+        plt.ylabel("Średnie zmiany wartości przedsiębiorstw [%]")
+        plt.title("Porównanie średnich zmian wartości przedsiębiorstw")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        plt.xticks(rotation=45)
+
+        for bar, time in zip(bars, means):
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2.0, yval, f"{yval:.2f}", ha='center', va='bottom')
+
+        plt.tight_layout()
+        plt.show()
+
+    def plot_positive_changes_comparison(self, metrics):
+        strategy_names = []
+        total_positives = []
+        for strategy_name, strategy_metrics in metrics.items():
+            strategy_names.append(strategy_name)
+            total_positives.append(strategy_metrics["positive_changes"])
+
+        plt.figure(figsize=(10, 6))
+        bars = plt.bar(strategy_names, total_positives, color="lightcoral", edgecolor="black")
+        plt.ylabel("Ilość pozytywnych zmian wartości przedsiębiorstw")
+        plt.title("Porównanie ilości pozytywnych zmian wartości przedsiębiorstw")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        plt.xticks(rotation=45)
+
+        for bar, time in zip(bars, total_positives):
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2.0, yval, f"{yval}", ha='center', va='bottom')
 
         plt.tight_layout()
         plt.show()
